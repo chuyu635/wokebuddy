@@ -1,0 +1,25 @@
+name: WorkBuddy 每日签到
+on:
+  schedule:
+    - cron: "10 1 * * *"
+    - cron: "30 11 * * *"
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: workbuddy-daily-checkin
+  cancel-in-progress: false
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 执行签到
+        env:
+          WB_ACCESS_TOKEN: ${{ secrets.WB_ACCESS_TOKEN }}
+          WB_USER_ID: ${{ secrets.WB_USER_ID }}
+        run: python -X utf8 wb_checkin.py --timeout 20 --retries 2
